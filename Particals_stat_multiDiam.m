@@ -5,45 +5,38 @@ close all
 
 
 fontSize=16;
-SaveDir='/home/omarlocal/PhD/Writings/Papers/Covid-19/Airbus/Data';
-% Dir='/home/omarlocal/PhD/Writings/Papers/Covid-19/1Mic_full_noSheilds';
-% Dir{1}='/home/omarlocal/PhD/Writings/Papers/Covid-19/Airbus/Data/NoShieldsNoNozzles';
-% Dir{2}='/home/omarlocal/PhD/Writings/Papers/Covid-19/Airbus/Data/NoShieldsWithNozzles';
-% Dir{3}='/home/omarlocal/PhD/Writings/Papers/Covid-19/Airbus/Data/WithShieldsNoNozzles';
-% Dir{4}='/home/omarlocal/PhD/Writings/Papers/Covid-19/Airbus/Data/WithShieldsWithNozzles';
+SaveDir='/home/omar/WORK/Covid-19/Data/Airbus';
 
-% Dir{5}='/home/omarlocal/PhD/Writings/Papers/Covid-19/Airbus/Data/WithShieldsNoNozzles_1';
-% Dir{3}='/home/omarlocal/PhD/Writings/Papers/Covid-19/Airbus/Data/NoShieldsNoNozzles_OneInlet';
-% Dir{4}='/home/omarlocal/PhD/Writings/Papers/Covid-19/Airbus/Data/NoShieldsWithNozzles_OneInlet';
-Dir{1}='/home/omarlocal/PhD/Writings/Papers/Covid-19/Rob/BaseCase';
-Dir{2}='/home/omarlocal/PhD/Writings/Papers/Covid-19/Rob/BaseCase_01';
+Dir{1}='/home/omar/WORK/Covid-19/Data/RonProject/Scenario_A';
+
 
 
 %%% Get total number of particals
 tic
-nPartTotal=338000;
-nPartTotal=366000;
+nPartTotal=368000;
 
-% [nPartTotal,~]=get_nPart(Dir);
-% [nPart,T,M,dRng]=readDPM(fullfile(Dir,'passenger_29.dpm'));
 
-% figure(1)
-% set(axes,'FontSize',fontSize,'TickLabelInterpreter','latex')
-% hold on; grid on; box on;
 szRng=[1]/10^6;
+maxHigth=.5;
+minHigth=0;
 for iDir=1
-    [nP_pass,T_pass,M_pass]=get_nPart(fullfile(Dir{iDir},'passenger_*'),szRng);
-    [nP_mth,T_mth,M_mth]=get_nPart(fullfile(Dir{iDir},'mouth_*'),szRng);
-    [nP_out,T_out,M_out]=get_nPart(fullfile(Dir{iDir},'outlet*'),szRng);
-    [nP_grd,T_grd,M_grd]=get_nPart(fullfile(Dir{iDir},'ground*'),szRng);
-    [nP_st,T_st,M_st]=get_nPart(fullfile(Dir{iDir},'seats*'),szRng);
-    [nP_wll,T_wll,M_wll]=get_nPart(fullfile(Dir{iDir},'walls/*'),szRng);
-    [nP_bg,T_bg,M_bg]=get_nPart(fullfile(Dir{iDir},'bags*'),szRng);
+    [nP_all,T_all,M_all]=get_nPart(fullfile(Dir{iDir},'ALL/*'),szRng,minHigth,maxHigth);
+    
+    [nP_pass,T_pass,M_pass]=get_nPart(fullfile(Dir{iDir},'passenger_*'),szRng,0,100);
+    [nP_mth,T_mth,M_mth]=get_nPart(fullfile(Dir{iDir},'mouth_*'),szRng,0,100);
+    [nP_out,T_out,M_out]=get_nPart(fullfile(Dir{iDir},'outlet*'),szRng,0,100);
+    [nP_grd,T_grd,M_grd]=get_nPart(fullfile(Dir{iDir},'ground*'),szRng,0,100);
+    [nP_st,T_st,M_st]=get_nPart(fullfile(Dir{iDir},'seats*'),szRng,0,100);
+    [nP_wll,T_wll,M_wll]=get_nPart(fullfile(Dir{iDir},'walls/*'),szRng,0,100);
+    try; [nP_bg,T_bg,M_bg]=get_nPart(fullfile(Dir{iDir},'bags*'),szRng,0,100); catch; nP_bg=0; end
     Escaped = nP_out+nP_mth
-    try [nP_sld,T_sld,M_sld]=get_nPart(fullfile(Dir{iDir},'*shields*'),szRng); end
-    DepositedPart(iDir,:)=nP_pass+nP_mth+nP_out+nP_grd+nP_st+nP_wll+nP_bg;
-    try DepositedPart(iDir,:)=DepositedPart(iDir,:)+nP_sld; end
+    try [nP_sld,T_sld,M_sld]=get_nPart(fullfile(Dir{iDir},'*shields*'),szRng,0,100);catch; nP_sld=0 ; end
+    DepositedPart(iDir,:)=nP_pass+nP_mth+nP_out+nP_grd+nP_st+nP_wll+nP_bg+nP_sld;
+%     try DepositedPart(iDir,:)=DepositedPart(iDir,:)+nP_sld; end
+    %%%%%%%%%%%%%%%%%%%%% PLOT Single%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     for ISz=1:length(szRng);
+        T_pass{ISz}(end+1)=300;T_mth{ISz}(end+1)=300;T_out{ISz}(end+1)=300;T_grd{ISz}(end+1)=300;
+        T_st{ISz}(end+1)=300;T_wll{ISz}(end+1)=300;
         figure
         set(axes,'FontSize',fontSize,'TickLabelInterpreter','latex')
         % title(Dir{iDir}(end-20:end-1),'Interpreter','Latex','FontSize',10)
@@ -55,11 +48,11 @@ for iDir=1
         myplot(T_grd{ISz},[1:length(T_grd{ISz})]/nPartTotal*100,'b',2,'Ground',fontSize)
         myplot(T_st{ISz},[1:length(T_st{ISz})]/nPartTotal*100,'c',2,'Seats',fontSize)
         myplot(T_wll{ISz},[1:length(T_wll{ISz})]/nPartTotal*100,'m',2,'Walls',fontSize)
-        myplot(T_bg{ISz},[1:length(T_bg{ISz})]/nPartTotal*100,[44 112 62]/255,2,'Bags',fontSize)
+%         myplot(T_bg{ISz},[1:length(T_bg{ISz})]/nPartTotal*100,[44 112 62]/255,2,'Bags',fontSize)
         try; myplot(T_sld{ISz},[1:length(T_sld{ISz})]/nPartTotal*100,'--r',2,'Shields',fontSize); end
         
         xlim([0 300]);
-        ylim([0 60])
+% %         ylim([0 60])
         xlabel('Time(s)','Interpreter','Latex','FontSize',fontSize)
         ylabel('Deposition Fraction(\%)','Interpreter','Latex','FontSize',fontSize)
         
@@ -68,48 +61,74 @@ for iDir=1
         annotation('textbox', [0.4 0.95 0.05 0.05],'String',['$',Dir{iDir}(find(Dir{iDir}=='/',1,'last')+1:end),'$'],'Interpreter','Latex','FontSize',14);
         %          export_fig(fullfile(Dir{iDir},num2str([ISz],'Depos_time_size-%i')), '-pdf','-transparent')
     end
+        %%%%%%%%%%%%%%%%%%%%% PLOT All %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    for ISz=1:length(szRng);
+        T_all{ISz}(end+1)=300;
+        figure
+        set(axes,'FontSize',fontSize,'TickLabelInterpreter','latex')
+        % title(Dir{iDir}(end-20:end-1),'Interpreter','Latex','FontSize',10)
+        hold on; grid on; box on;
+        
+        myplot(T_all{ISz},[1:length(T_all{ISz})]/nPartTotal*100,'k',2,'Passangers',fontSize)
+
+        
+        xlim([0 300]);
+%         ylim([0 60])
+        xlabel('Time(s)','Interpreter','Latex','FontSize',fontSize)
+        ylabel('Deposition Fraction(\%)','Interpreter','Latex','FontSize',fontSize)
+        
+        legend('NumColumns',4,'Interpreter','Latex','FontSize',14,'location','northoutside','EdgeColor',[1 1 1])
+        set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 0.3, 0.6]);
+        annotation('textbox', [0.4 0.95 0.05 0.05],'String',['$',Dir{iDir}(find(Dir{iDir}=='/',1,'last')+1:end),'$'],'Interpreter','Latex','FontSize',14);
+        %          export_fig(fullfile(Dir{iDir},num2str([ISz],'Depos_time_size-%i')), '-pdf','-transparent')
+    end
+    
+    
 end
 %%%
 
 
 function myplot(x,y,Clr,wdth,name,fontSize)
-plot(x,y,'Color',Clr,'linewidth',wdth,'DisplayName',name)
-
-text(250, y(end)+0.5, num2str(y(end),'%3.1f\\%%'),...
-    'Color',Clr,'FontSize',fontSize,'Interpreter','Latex','BackgroundColor','none');
-
+plot(x,y,Clr,'linewidth',wdth,'DisplayName',name)
+try
+    text(250, y(end)+0.5, num2str(y(end),'%3.1f\\%%'),...
+    'Color',Clr(end),'FontSize',fontSize,'Interpreter','Latex','BackgroundColor','none');
+end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [nPartTotal,time,MSS]=get_nPart(Dir,diamRng)
+function [nPartTotal,time,MSS,Loc]=get_nPart(Dir,diamRng,minHigth,maxHigth)
 fileinfo = dir(Dir);
 nPartTotal=[0 0 0 0 0];
 time=cell(size(diamRng));
 MSS=cell(size(diamRng));
-% Loc=cell(length(diamRng));
-for I=1:length(fileinfo)
-    if fileinfo(I).isdir
+Loc=cell(length(diamRng));
+for J=1:length(fileinfo)
+    if fileinfo(J).isdir
         continue
     end
-    [nPart,T,M,dRng]=readDPM(fullfile(fileinfo(I).folder,fileinfo(I).name));
-    
+    [nPart,T,M,dRng,L]=readDPM(fullfile(fileinfo(J).folder,fileinfo(J).name));
     % error('vdsvs#')
     for I=1:length(dRng)
         II=find(diamRng==dRng(I));
         if isempty(II); continue ; end
         nPartTotal(II)=nPartTotal(II)+nPart(I);
         time{II}=[time{II};T{I}];
-        MSS{II}=[MSS{II};M{I}];
-        %         Loc{II}=[Loc{II};L{I}];
+        MSS{II}=[MSS{II};M{I}];        
+        Loc{II}=[Loc{II};L{I}];
+
     end
     
 end
+
 for I=1:length(diamRng)
+
+    time{I}=time{I}(Loc{I}(:,2)>=minHigth & Loc{I}(:,2)<=maxHigth);
     time{I}=sort(time{I});
 end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [nPart,T,M,dRng]=readDPM(fileName)
+function [nPart,T,M,dRng,L]=readDPM(fileName)
 % fileName
 fileName;
 fileID = fopen(fileName);
@@ -143,9 +162,9 @@ end
 
 %%%%%%%%%%%%%%%%% Separate Partical based on the partical size %%%%%%%%%%%%
 for nSize=1:length(dRng)
-    %     L{nSize}(:,1)=Data{2}(Data{8}==dRng(nSize),:);
-    %     L{nSize}(:,2)=Data{3}(Data{8}==dRng(nSize),:);
-    %     L{nSize}(:,3)=Data{4}(Data{8}==dRng(nSize),:);
+        L{nSize}(:,1)=Data{2}(Data{8}==dRng(nSize),:);
+        L{nSize}(:,2)=Data{3}(Data{8}==dRng(nSize),:);
+        L{nSize}(:,3)=Data{4}(Data{8}==dRng(nSize),:);
     %
     %     V{nSize}(:,1)=Data{5}(Data{8}==dRng(nSize),:);
     %     V{nSize}(:,2)=Data{6}(Data{8}==dRng(nSize),:);
@@ -168,11 +187,11 @@ for nSize=1:length(dRng)
     %     L{nSize}=L{nSize}(sortInd,:);
     %     V{nSize}=V{nSize}(sortInd,:);
     D{nSize}=D{nSize}(sortInd,:);
+    L{nSize}=L{nSize}(sortInd,:);
     M{nSize}=M{nSize}(sortInd,:);
     nPart(nSize)=length(T{nSize});
 end
 
 end
-
 
 
