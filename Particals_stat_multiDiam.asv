@@ -7,10 +7,10 @@ close all
 fontSize=16;
 SaveDir='/home/omar/WORK/Covid-19/Data/Airbus';
 
-Dir{1}='/mnt/nvme1n1/WORK/Covid/Airbus/Data/AirBusProject/NoShieldsNoNozzles/';
-% Dir{2}='/mnt/nvme1n1/WORK/Covid/Airbus/Data/AirBusProject/NoShieldsWithNozzles/';
-% Dir{3}='/mnt/nvme1n1/WORK/Covid/Airbus/Data/AirBusProject/NoShieldsNoNozzles_OneInlet/';
-% Dir{4}='/mnt/nvme1n1/WORK/Covid/Airbus/Data/AirBusProject/NoShieldsWithNozzles_OneInlet';
+Dir{1}='/media/omar/bb5bfc6d-a551-4b3e-9f47-2b7d74410f28/WORK/Covid/Airbus/Data/AirBusProject/NoShieldsNoNozzles/';
+% Dir{2}='/media/omar/bb5bfc6d-a551-4b3e-9f47-2b7d74410f28/WORK/Covid/Airbus/Data/AirBusProject/NoShieldsWithNozzles/';
+% Dir{3}='/media/omar/bb5bfc6d-a551-4b3e-9f47-2b7d74410f28/WORK/Covid/Airbus/Data/AirBusProject/NoShieldsNoNozzles_OneInlet/';
+% Dir{4}='/media/omar/bb5bfc6d-a551-4b3e-9f47-2b7d74410f28/WORK/Covid/Airbus/Data/AirBusProject/NoShieldsWithNozzles_OneInlet';
 
 
 
@@ -22,19 +22,19 @@ nPartTotal=338000;
 
 szRng=[1]/10^6;
 maxHigth=.5;
-minHigth=-10;
+minHigth=0;
 for iDir=1:length(Dir)
 %     [nP_all,T_all,M_all]=get_nPart(fullfile(Dir{iDir},'ALL/*'),szRng,minHigth,maxHigth);
     
-    [nP_pass,T_pass,M_pass]=get_nPart(fullfile(Dir{iDir},'passenger_*'),szRng,minHigth,100);
-    [nP_mth,T_mth,M_mth]=get_nPart(fullfile(Dir{iDir},'mouth_*'),szRng,minHigth,100);
-    [nP_out,T_out,M_out]=get_nPart(fullfile(Dir{iDir},'outlet*'),szRng,minHigth,100);
-    [nP_grd,T_grd,M_grd]=get_nPart(fullfile(Dir{iDir},'ground*'),szRng,minHigth,100);
-    [nP_st,T_st,M_st]=get_nPart(fullfile(Dir{iDir},'seats*'),szRng,minHigth,100);
-    [nP_wll,T_wll,M_wll]=get_nPart(fullfile(Dir{iDir},'walls/*'),szRng,minHigth,100);
-    try; [nP_bg,T_bg,M_bg]=get_nPart(fullfile(Dir{iDir},'bags*'),szRng,minHigth,100); catch; nP_bg=0; end
+    [nP_pass,T_pass,M_pass]=get_nPart(fullfile(Dir{iDir},'passenger_*'),szRng,0,100);
+    [nP_mth,T_mth,M_mth]=get_nPart(fullfile(Dir{iDir},'mouth_*'),szRng,0,100);
+    [nP_out,T_out,M_out]=get_nPart(fullfile(Dir{iDir},'outlet*'),szRng,0,100);
+    [nP_grd,T_grd,M_grd]=get_nPart(fullfile(Dir{iDir},'ground*'),szRng,0,100);
+    [nP_st,T_st,M_st]=get_nPart(fullfile(Dir{iDir},'seats*'),szRng,0,100);
+    [nP_wll,T_wll,M_wll]=get_nPart(fullfile(Dir{iDir},'walls/*'),szRng,0,100);
+    try; [nP_bg,T_bg,M_bg]=get_nPart(fullfile(Dir{iDir},'bags*'),szRng,0,100); catch; nP_bg=0; end
     Escaped = nP_out+nP_mth
-    try [nP_sld,T_sld,M_sld]=get_nPart(fullfile(Dir{iDir},'*shields*'),szRng,minHigth,100);catch; nP_sld=0 ; end
+    try [nP_sld,T_sld,M_sld]=get_nPart(fullfile(Dir{iDir},'*shields*'),szRng,0,100);catch; nP_sld=0 ; end
     DepositedPart(iDir,:)=nP_pass+nP_mth+nP_out+nP_grd+nP_st+nP_wll+nP_bg+nP_sld;
 %     try DepositedPart(iDir,:)=DepositedPart(iDir,:)+nP_sld; end
     %%%%%%%%%%%%%%%%%%%%% PLOT Single%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -126,7 +126,7 @@ end
 
 for I=1:length(diamRng)
 
-    time{I}=time{I}(Loc{I}(:,2)>=minHigth & Loc{I}(:,2)<=maxHigth);
+%     time{I}=time{I}(Loc{I}(:,2)>=minHigth & Loc{I}(:,2)<=maxHigth);
     time{I}=sort(time{I});
 end
 end
